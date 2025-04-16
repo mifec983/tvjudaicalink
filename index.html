@@ -1,47 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reprodução HLS</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TV Aberta SP</title>
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       background-color: black;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
     }
     video {
-      max-width: 100%;
-      height: auto;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      background: black;
+      border: none;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
-  
-<video id="video" controls autoplay muted></video>
-<script>
-    var video = document.getElementById('video');
-    if (Hls.isSupported()) {
-        var hls = new Hls();
-        hls.loadSource('https://cdn.live.br1.jmvstream.com/webtv/tvjudaica2/playlist/playlist.m3u8');
+  <video id="video" autoplay muted playsinline></video>
+  <script>
+    const video = document.getElementById('video');
+    const stream = 'https://cdn.live.br1.jmvstream.com/webtv/tvjudaica2/playlist/playlist.m3u8';
+
+    function iniciarStream() {
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(stream);
         hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, function() {
-            video.play();
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+          video.play();
         });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = 'https://cdn.live.br1.jmvstream.com/webtv/tvjudaica2/playlist/playlist.m3u8';
-        video.addEventListener('loadedmetadata', function() {
-            video.play();
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = stream;
+        video.addEventListener('loadedmetadata', function () {
+          video.play();
         });
-    } else {
+      } else {
         alert('Seu navegador não suporta reprodução de vídeo HLS.');
+      }
     }
-</script>
+
+    iniciarStream();
+
+    // Controles via teclado
+    document.addEventListener('keydown', function(event) {
+      switch (event.keyCode) {
+        case 13: // ENTER = mute/unmute
+          video.muted = !video.muted;
+          break;
+        case 32: // SPACE = pause/play
+          if (video.paused) {
+            video.play();
+          } else {
+            video.pause();
+          }
+          break;
+        default:
+          break;
+      }
+    });
+
+    window.onload = () => {
+      document.body.focus();
+    };
+  </script>
 </body>
 </html>
